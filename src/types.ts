@@ -30,6 +30,11 @@ export interface RepoData {
 
 export type SortField = 'commits' | 'insertions' | 'deletions' | 'net';
 
+export interface CollectorOptions {
+  includeMerges?: boolean;
+  since?: string;
+}
+
 export interface VisualizationOptions {
   limit?: number;
   sort?: SortField;

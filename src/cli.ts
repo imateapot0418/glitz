@@ -35,11 +35,23 @@ yargs(hideBin(process.argv))
           describe: 'Output raw data as JSON',
           type: 'boolean',
           default: false,
+        })
+        .option('include-merges', {
+          describe: 'Include merge commits in statistics',
+          type: 'boolean',
+          default: false,
+        })
+        .option('since', {
+          describe: 'Only count commits after date (e.g., "3 months ago")',
+          type: 'string',
         });
     },
     (argv) => {
       try {
-        const data = collectGitLog(argv.path as string);
+        const data = collectGitLog(argv.path as string, {
+          includeMerges: argv.includeMerges,
+          since: argv.since,
+        });
         const viz = getVisualization('heroes');
         if (viz) {
           viz(data, {
