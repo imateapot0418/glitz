@@ -9,6 +9,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/cli.ts",
+    "test": "tsx --test src/__tests__/*.test.ts",
     "start": "node dist/cli.js",
     "prepublishOnly": "npm run build"
   },

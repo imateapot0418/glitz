@@ -41,6 +41,12 @@ glitz heroes /path/to/repo
 # Show top 5, sorted by lines added
 glitz heroes --limit 5 --sort insertions
 
+# Only commits from the last 3 months
+glitz heroes --since "3 months ago"
+
+# Include merge commits
+glitz heroes --include-merges
+
 # Output raw JSON data
 glitz heroes --json
 ```
@@ -51,6 +57,8 @@ glitz heroes --json
 |------|-------|-------------|---------|
 | `--limit` | `-l` | Number of authors to display | `10` |
 | `--sort` | `-s` | Sort by: `commits`, `insertions`, `deletions`, `net` | `commits` |
+| `--since` | | Only count commits after date (e.g., `"3 months ago"`) | |
+| `--include-merges` | | Include merge commits in statistics | `false` |
 | `--json` | | Output raw intermediate data as JSON | `false` |
 
 **Example output:**
@@ -76,6 +84,25 @@ Glitz is designed to be extensible. To add a new visualization:
 3. Register it in `src/visualizations/index.ts`
 4. Add a yargs subcommand in `src/cli.ts`
 
+## Author Deduplication with `.mailmap`
+
+Glitz uses git's `%aN` / `%aE` format specifiers, which respect your repo's `.mailmap` file. If the same person has committed under different names or emails, create a `.mailmap` file in your repo root to unify them:
+
+```
+Alice Chen <alice@company.com> <alice.old@gmail.com>
+Alice Chen <alice@company.com> <achen@users.noreply.github.com>
+```
+
+See [git-mailmap docs](https://git-scm.com/docs/gitmailmap) for details.
+
+## Disabling Colors
+
+Glitz respects the `NO_COLOR` environment variable. To disable colored output:
+
+```bash
+NO_COLOR=1 glitz heroes
+```
+
 ## Development
 
 ```bash
@@ -87,6 +114,9 @@ npm run dev -- heroes /path/to/repo
 
 # Build
 npm run build
+
+# Run tests
+npm test
 
 # Link globally for testing
 npm link

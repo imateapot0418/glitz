@@ -1,6 +1,7 @@
 import { execSync } from 'child_process';
+import fs from 'fs';
 import path from 'path';
-import { CommitData, AuthorStats, RepoData } from '../types';
+import { CommitData, AuthorStats, RepoData, CollectorOptions } from '../types';
 
 const COMMIT_SEPARATOR = '---GLITZ_COMMIT---';
 const FIELD_SEPARATOR = '---GLITZ_FIELD---';
@@ -8,8 +9,23 @@ const FIELD_SEPARATOR = '---GLITZ_FIELD---';
 /**
  * Collect git log data from a repository and return structured RepoData.
  */
-export function collectGitLog(repoPath: string): RepoData {
+export function collectGitLog(repoPath: string, options: CollectorOptions = {}): RepoData {
   const absPath = path.resolve(repoPath);
+
+  // Validate git is available
+  try {
+    execSync('git --version', { stdio: 'pipe' });
+  } catch {
+    throw new Error('Git is not installed or not in PATH');
+  }
+
+  // Validate path exists and is a directory
+  if (!fs.existsSync(absPath)) {
+    throw new Error(`Path does not exist: ${absPath}`);
+  }
+  if (!fs.statSync(absPath).isDirectory()) {
+    throw new Error(`Path is not a directory: ${absPath}`);
+  }
 
   // Verify it's a git repo
   try {
@@ -20,7 +36,9 @@ export function collectGitLog(repoPath: string): RepoData {
 
   const repoName = getRepoName(absPath);
   const branch = getCurrentBranch(absPath);
-  const commits = getCommits(absPath);
+
+  process.stderr.write('Collecting commit data...\n');
+  const commits = getCommits(absPath, options);
   const authors = aggregateAuthorStats(commits);
 
   return {
@@ -52,11 +70,12 @@ function getCurrentBranch(repoPath: string): string {
       .toString()
       .trim();
   } catch {
+    process.stderr.write('Warning: Could not determine current branch, using "unknown"\n');
     return 'unknown';
   }
 }
 
-function getCommits(repoPath: string): CommitData[] {
+function getCommits(repoPath: string, options: CollectorOptions = {}): CommitData[] {
   const format = [
     '%H',   // hash
     '%aN',  // author name (respects .mailmap)
@@ -65,14 +84,24 @@ function getCommits(repoPath: string): CommitData[] {
     '%s',   // subject
   ].join(FIELD_SEPARATOR);
 
+  const args = ['git', 'log'];
+  if (!options.includeMerges) {
+    args.push('--no-merges');
+  }
+  if (options.since) {
+    args.push(`--since="${options.since}"`);
+  }
+  args.push('--numstat', `--format="${COMMIT_SEPARATOR}${format}"`);
+
   let output: string;
   try {
     output = execSync(
-      `git log --no-merges --numstat --format="${COMMIT_SEPARATOR}${format}"`,
+      args.join(' '),
       { cwd: repoPath, stdio: 'pipe', maxBuffer: 50 * 1024 * 1024 }
     ).toString();
-  } catch {
-    return [];
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(`Failed to read git log: ${message}`);
   }
 
   const rawCommits = output.split(COMMIT_SEPARATOR).filter(s => s.trim());
@@ -120,7 +149,7 @@ function getCommits(repoPath: string): CommitData[] {
   return commits;
 }
 
-function aggregateAuthorStats(commits: CommitData[]): AuthorStats[] {
+export function aggregateAuthorStats(commits: CommitData[]): AuthorStats[] {
   const statsMap = new Map<string, AuthorStats>();
 
   for (const commit of commits) {
