@@ -1,0 +1,41 @@
+{
+  "name": "glitz",
+  "version": "0.1.0",
+  "description": "Engaging terminal visualizations for your git repo's commit history",
+  "main": "dist/cli.js",
+  "bin": {
+    "glitz": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "start": "node dist/cli.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "git",
+    "visualization",
+    "cli",
+    "terminal",
+    "stats",
+    "commits"
+  ],
+  "author": "David Flynn",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/yargs": "^17.0.32",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "files": [
+    "dist"
+  ]
+}
