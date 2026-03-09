@@ -1,6 +1,6 @@
 {
   "name": "glitz",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Engaging terminal visualizations for your git repo's commit history",
   "main": "dist/cli.js",
   "bin": {

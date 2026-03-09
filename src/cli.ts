@@ -74,5 +74,5 @@ yargs(hideBin(process.argv))
   .alias('help', 'h')
   .version()
   .alias('version', 'v')
-  .epilogue('Available visualizations: ' + getAvailableVisualizations().join(', '))
+  .epilogue('Run "glitz <command> --help" for detailed options on each command.')
   .parse();
