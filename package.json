@@ -1,10 +1,10 @@
 {
-  "name": "glitz",
+  "name": "@imateapot0418/glitz",
   "version": "0.1.0",
   "description": "Engaging terminal visualizations for your git repo's commit history",
   "main": "dist/cli.js",
   "bin": {
-    "glitz": "./dist/cli.js"
+    "glitz": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
@@ -21,6 +21,10 @@
     "stats",
     "commits"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imateapot0418/glitz.git"
+  },
   "author": "David Flynn",
   "license": "MIT",
   "dependencies": {
@@ -37,6 +41,7 @@
     "node": ">=16.0.0"
   },
   "files": [
-    "dist"
+    "dist",
+    "!dist/__tests__"
   ]
 }
